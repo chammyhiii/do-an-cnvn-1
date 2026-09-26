@@ -1,0 +1,35 @@
+/* ============ 🎨 PALETTE MÀU — từ coolors.co ============ */
+:root {
+  /* 5 màu chính */
+  --primary:   #6C7EE1;  /* Xanh tím — chủ đạo */
+  --sky:       #92B9E3;  /* Xanh da trời */
+  --peach:     #FFC4A4;  /* Đào ấm */
+  --pink:      #FBA2D0;  /* Hồng kẹo */
+  --lavender:  #C688EB;  /* Tím oải hương */
+
+  /* Nền + text */
+  --cream:       #FFF8F8;
+  --white:       #FFFFFF;
+  --text:        #3A3A5C;
+  --text-light:  #8B8BA8;
+  --border:      #F0E4F0;
+
+  /* Trạng thái */
+  --danger:   #FF6B8A;
+  --success:  #6C7EE1;
+  --warning:  #FFC4A4;
+
+  /* Shadow */
+  --shadow:       0 6px 24px rgba(108, 126, 225, 0.12);
+  --shadow-hover: 0 10px 32px rgba(108, 126, 225, 0.22);
+
+  /* Radius */
+  --radius:    22px;
+  --radius-sm: 14px;
+  --radius-xs: 10px;
+
+  /* Font */
+  --font-heading: 'Nunito', -apple-system, sans-serif;
+  --font-body:    'Nunito', -apple-system, sans-serif;
+  --font-mono:    'Inter', monospace;
+}

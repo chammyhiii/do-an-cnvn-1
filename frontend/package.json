@@ -1,0 +1,12 @@
+{
+  "name": "cho-so-frontend",
+  "version": "1.0.0",
+  "description": "Chợ Số — Web mô phỏng kinh tế dễ thương",
+  "scripts": {
+    "dev": "npx live-server --port=5173 --open=/src/pages/index.html",
+    "start": "npx live-server --port=5173 --open=/src/pages/index.html"
+  },
+  "keywords": ["economy", "simulation", "vietnam", "chợ"],
+  "author": "Sinh viên CNVN",
+  "license": "MIT"
+}

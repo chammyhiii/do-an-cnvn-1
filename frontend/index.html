@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<title>🛒 Chợ Số</title>
+<meta http-equiv="refresh" content="0; url=src/pages/index.html">
+<style>
+  body {
+    font-family: 'Nunito', sans-serif;
+    background: #FFF8F8;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    margin: 0;
+    color: #3A3A5C;
+  }
+  .loader { text-align: center; }
+  .loader .emoji { font-size: 72px; animation: bob 1s ease-in-out infinite; }
+  @keyframes bob {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-10px); }
+  }
+  .loader p { font-weight: 700; margin-top: 16px; }
+</style>
+</head>
+<body>
+  <div class="loader">
+    <div class="emoji">🛒</div>
+    <p>Đang vào Chợ Số...</p>
+  </div>
+</body>
+</html>

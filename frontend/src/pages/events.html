@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>🌪️ Cú sốc — Chợ Số</title>
+<link rel="stylesheet" href="../css/style.css">
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+<div class="app">
+  <aside class="sidebar">
+    <div class="logo"><span>🛒</span><span>Chợ Số</span></div>
+    <a href="index.html"    class="nav-item"><span class="icon">🏠</span><span>Chợ hôm nay</span></a>
+    <a href="markets.html"  class="nav-item"><span class="icon">📊</span><span>Các khu chợ</span></a>
+    <a href="events.html"   class="nav-item active"><span class="icon">🌪️</span><span>Cú sốc</span></a>
+    <a href="analysis.html" class="nav-item"><span class="icon">📈</span><span>Phân tích</span></a>
+    <a href="settings.html" class="nav-item"><span class="icon">⚙️</span><span>Cài đặt</span></a>
+  </aside>
+
+  <main class="main">
+    <div class="page-header">
+      <div>
+        <h1 class="page-title"><span class="emoji">🌪️</span>Hiện tượng kinh tế</h1>
+        <p class="page-subtitle">Bấm để xem chợ phản ứng thế nào 🎬</p>
+      </div>
+    </div>
+
+    <div class="preview-box">
+      <div class="preview-header">
+        <div class="preview-title">
+          <span id="previewEmoji">🎬</span>
+          <span id="previewTitle">Chọn 1 hiện tượng bên dưới</span>
+        </div>
+        <div class="preview-status" id="previewStatus">😊 Bình thường</div>
+      </div>
+      <div class="chart-container-sm"><canvas id="eventChart"></canvas></div>
+    </div>
+
+    <div class="events-grid">
+      <div class="event-card bubble" data-event="bubble">
+        <span class="big-emoji">🫧</span>
+        <span class="event-tag">Bong bóng</span>
+        <h4>Giá vượt giá trị thật</h4>
+        <p>Ai cũng đua nhau mua, giá leo thang rồi... vỡ!</p>
+        <button class="event-btn">🎈 Xem bong bóng</button>
+      </div>
+
+      <div class="event-card crisis" data-event="crisis">
+        <span class="big-emoji">💥</span>
+        <span class="event-tag">Khủng hoảng</span>
+        <h4>Giá sập, dân bán tháo</h4>
+        <p>Hoảng loạn ập đến, ai cũng muốn bán bằng mọi giá.</p>
+        <button class="event-btn">😱 Gây khủng hoảng</button>
+      </div>
+
+      <div class="event-card policy" data-event="policy">
+        <span class="big-emoji">🏛️</span>
+        <span class="event-tag">Chính sách</span>
+        <h4>Kéo lãi suất lên</h4>
+        <p>Nhà nước can thiệp — dân phản ứng ra sao?</p>
+        <button class="event-btn">📜 Ra chính sách</button>
+      </div>
+    </div>
+
+    <div class="lesson-box">
+      <span class="lesson-icon">💡</span>
+      <div><b>Bài học:</b> Bong bóng hình thành khi giá vượt xa giá trị thật. Khi ai cũng tin "giá sẽ còn tăng", người cuối cùng mua vào sẽ là người chịu thiệt nhất.</div>
+    </div>
+  </main>
+</div>
+
+<script type="module">
+import { triggerEvent } from '../js/api.js';
+import { LINE_OPTIONS, makeLineDataset, DEFAULT_LABELS } from '../js/chart-config.js';
+import { showToast, spawnBubble, shakeScreen } from '../js/main.js';
+
+let eventChart;
+
+function initChart() {
+  const ctx = document.getElementById('eventChart').getContext('2d');
+  eventChart = new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels: DEFAULT_LABELS,
+      datasets: [makeLineDataset([100,102,105,108,112,115,118,120], '#6C7EE1')]
+    },
+    options: LINE_OPTIONS
+  });
+}
+
+function updateChart(data, color) {
+  eventChart.data.datasets[0].data = data;
+  eventChart.data.datasets[0].borderColor = color;
+  eventChart.data.datasets[0].backgroundColor = color + '22';
+  eventChart.data.datasets[0].pointBackgroundColor = color;
+  eventChart.update();
+}
+
+function setStatus(text, bg, color = 'var(--text)') {
+  const s = document.getElementById('previewStatus');
+  s.textContent = text;
+  s.style.background = bg;
+  s.style.color = color;
+}
+
+const handlers = {
+  bubble: async () => {
+    document.getElementById('previewEmoji').textContent = '🫧';
+    document.getElementById('previewTitle').textContent = 'Bong bóng hình thành!';
+    setStatus('🫧 Đang phồng lên', 'var(--lavender)', 'white');
+    updateChart([100,110,125,145,170,200,180,80], '#C688EB');
+
+    await triggerEvent('bubble', 'vang');
+    for (let i = 0; i < 12; i++) setTimeout(spawnBubble, i * 150);
+
+    setTimeout(() => {
+      setStatus('💥 Bong bóng vỡ!', 'var(--danger)', 'white');
+      shakeScreen();
+      showToast('💥 Bong bóng vỡ! Giá sập 200 → 80');
+    }, 3000);
+  },
+
+  crisis: async () => {
+    document.getElementById('previewEmoji').textContent = '💥';
+    document.getElementById('previewTitle').textContent = 'Khủng hoảng ập đến!';
+    setStatus('😱 Hoảng loạn', 'var(--danger)', 'white');
+    updateChart([100,95,90,85,75,60,45,30], '#FF6B8A');
+
+    await triggerEvent('crisis', 'thit');
+    shakeScreen();
+    showToast('💥 Khủng hoảng! Giá sập 70%');
+  },
+
+  policy: async () => {
+    document.getElementById('previewEmoji').textContent = '🏛️';
+    document.getElementById('previewTitle').textContent = 'Nhà nước can thiệp';
+    setStatus('📜 Đang điều chỉnh', 'var(--sky)', 'var(--text)');
+    updateChart([150,145,140,135,130,125,120,118], '#92B9E3');
+
+    await triggerEvent('policy', 'vang');
+    showToast('🏛️ Kéo lãi suất → giá hạ nhiệt');
+  }
+};
+
+document.querySelectorAll('.event-card').forEach(card => {
+  card.addEventListener('click', () => {
+    const eventId = card.dataset.event;
+    if (handlers[eventId]) handlers[eventId]();
+  });
+});
+
+window.addEventListener('load', initChart);
+</script>
+</body>
+</html>

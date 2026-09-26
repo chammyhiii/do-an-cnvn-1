@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>📊 Các khu chợ — Chợ Số</title>
+<link rel="stylesheet" href="../css/style.css">
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+<div class="app">
+  <aside class="sidebar">
+    <div class="logo"><span>🛒</span><span>Chợ Số</span></div>
+    <a href="index.html"    class="nav-item"><span class="icon">🏠</span><span>Chợ hôm nay</span></a>
+    <a href="markets.html"  class="nav-item active"><span class="icon">📊</span><span>Các khu chợ</span></a>
+    <a href="events.html"   class="nav-item"><span class="icon">🌪️</span><span>Cú sốc</span></a>
+    <a href="analysis.html" class="nav-item"><span class="icon">📈</span><span>Phân tích</span></a>
+    <a href="settings.html" class="nav-item"><span class="icon">⚙️</span><span>Cài đặt</span></a>
+  </aside>
+
+  <main class="main">
+    <div class="page-header">
+      <div>
+        <h1 class="page-title"><span class="emoji">📊</span>Các khu chợ</h1>
+        <p class="page-subtitle">Mỗi loại hàng có quy luật riêng 🧺✨</p>
+      </div>
+    </div>
+
+    <div style="display:grid;grid-template-columns:240px 1fr;gap:20px;">
+      <div class="market-menu" id="marketMenu">
+        <!-- Tabs render bằng JS -->
+      </div>
+
+      <div>
+        <div class="card">
+          <div class="card-title" id="marketTitle">🥬 Chợ Rau — Giá đang chạy</div>
+          <div class="chart-container"><canvas id="marketChart"></canvas></div>
+          <div id="marketNote" style="display:none;margin-top:16px;padding:14px 18px;background:linear-gradient(135deg,#FAFAFF,#F8F0FF);border-radius:14px;font-size:14px;font-weight:600;color:var(--text-light);line-height:1.6;border-left:4px solid var(--primary);"></div>
+        </div>
+
+        <div class="grid-2" style="margin-top:20px;">
+          <div class="card">
+            <div class="card-title">⚖️ Cung - Cầu</div>
+            <div style="display:flex;align-items:center;gap:16px;padding:16px 0;">
+              <div style="flex:1;text-align:center;">
+                <div style="font-size:32px;" id="cungIcon">🥬</div>
+                <div style="font-size:13px;color:var(--text-light);font-weight:800;">CUNG</div>
+                <div style="font-family:Inter;font-weight:800;font-size:20px;" id="cungVal">500</div>
+              </div>
+              <div style="font-size:24px;">⚔️</div>
+              <div style="flex:1;text-align:center;">
+                <div style="font-size:32px;" id="cauIcon">🍲</div>
+                <div style="font-size:13px;color:var(--text-light);font-weight:800;">CẦU</div>
+                <div style="font-family:Inter;font-weight:800;font-size:20px;" id="cauVal">620</div>
+              </div>
+            </div>
+            <div id="cungCauNote" style="text-align:center;font-size:13px;font-weight:700;color:var(--text-light);padding-top:8px;border-top:1px dashed var(--border);"></div>
+          </div>
+
+          <div class="card">
+            <div class="card-title">🔥 Biến động mạnh nhất</div>
+            <div id="topChanges"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>
+
+<script type="module">
+import { getMarkets } from '../js/api.js';
+import { LINE_OPTIONS, makeLineDataset, DEFAULT_LABELS } from '../js/chart-config.js';
+import { formatNumber } from '../js/utils.js';
+
+let marketChart, allMarkets = [];
+
+async function loadMarkets() {
+  const res = await getMarkets();
+  allMarkets = res.data;
+  renderMenu();
+  initChart();
+  selectMarket(allMarkets[0].id);
+}
+
+function renderMenu() {
+  const menu = document.getElementById('marketMenu');
+  menu.innerHTML = allMarkets.map((m, i) => `
+    <button class="market-tab ${i === 0 ? 'active' : ''}"
+            data-id="${m.id}"
+            onclick="window._selectMarket('${m.id}')">
+      <span class="emoji">${m.icon}</span> ${m.name}
+      ${m.id === 'vang' ? '<span style="margin-left:auto;font-size:10px;font-weight:800;padding:3px 8px;border-radius:100px;background:var(--pink);color:white;">HOT</span>' : ''}
+    </button>
+  `).join('');
+}
+
+function initChart() {
+  const ctx = document.getElementById('marketChart').getContext('2d');
+  marketChart = new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels: DEFAULT_LABELS,
+      datasets: [makeLineDataset(allMarkets[0].priceHistory, '#6C7EE1')]
+    },
+    options: LINE_OPTIONS
+  });
+}
+
+function selectMarket(id) {
+  document.querySelectorAll('.market-tab').forEach(t => t.classList.remove('active'));
+  document.querySelector(`[data-id="${id}"]`)?.classList.add('active');
+
+  const m = allMarkets.find(x => x.id === id);
+  if (!m) return;
+
+  document.getElementById('marketTitle').textContent = `${m.icon} ${m.name} — Giá đang chạy`;
+
+  const color = m.id === 'vang' ? '#FBA2D0'
+              : m.id === 'kimcuong' ? '#92B9E3'
+              : '#6C7EE1';
+
+  marketChart.data.datasets[0].data = m.priceHistory;
+  marketChart.data.datasets[0].borderColor = color;
+  marketChart.data.datasets[0].backgroundColor = color + '22';
+  marketChart.data.datasets[0].pointBackgroundColor = color;
+  marketChart.update();
+
+  // Cung-cầu
+  document.getElementById('cungIcon').textContent = m.icon;
+  document.getElementById('cauVal').textContent = m.cau;
+  document.getElementById('cungVal').textContent = m.cung;
+
+  const note = document.getElementById('cungCauNote');
+  if (m.cau > m.cung * 1.3) {
+    note.textContent = '🔥 Cầu > Cung → Giá tăng!';
+    note.style.color = '#FBA2D0';
+  } else if (m.cung > m.cau * 1.3) {
+    note.textContent = '💧 Cung > Cầu → Giá giảm!';
+    note.style.color = '#92B9E3';
+  } else {
+    note.textContent = '⚖️ Cân bằng';
+    note.style.color = 'var(--text-light)';
+  }
+
+  // Top changes
+  document.getElementById('topChanges').innerHTML = m.topChanges.map(c => {
+    const up = c.pct > 0;
+    return `<div style="padding:12px 14px;background:var(--cream);border-radius:12px;margin-bottom:8px;display:flex;justify-content:space-between;font-weight:700;font-size:14px;">
+      <span>${c.name}</span>
+      <span style="color:${up ? 'var(--pink)' : 'var(--primary)'};">${up ? '📈 +' : '📉 '}${c.pct}%</span>
+    </div>`;
+  }).join('');
+
+  // Note
+  const noteEl = document.getElementById('marketNote');
+  if (m.note) {
+    noteEl.style.display = 'block';
+    noteEl.textContent = m.note;
+  } else {
+    noteEl.style.display = 'none';
+  }
+}
+
+// Expose ra global để onclick gọi được
+window._selectMarket = selectMarket;
+
+window.addEventListener('load', loadMarkets);
+</script>
+</body>
+</html>
