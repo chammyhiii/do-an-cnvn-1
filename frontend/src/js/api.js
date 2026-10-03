@@ -87,3 +87,40 @@ export async function updateSettings(payload) {
   }
   return call('/settings', { method: 'PUT', body: JSON.stringify(payload) });
 }
+const BASE_URL = 'http://localhost:3000'; // Đổi thành link Render khi deploy backend online
+
+export const api = {
+  // Lấy cấu hình từ Backend
+  async getSettings() {
+    try {
+      const response = await fetch(`${BASE_URL}/settings`);
+      const result = await response.json();
+      if (!response.ok) throw new Error(result.message || 'Lỗi lấy cài đặt');
+      return result.data;
+    } catch (error) {
+      console.error('API Error [getSettings]:', error);
+      alert('Không thể kết nối với server backend!');
+      throw error;
+    }
+  },
+
+  // Gửi cấu hình mới lên Backend
+  async updateSettings(settingsData) {
+    try {
+      const response = await fetch(`${BASE_URL}/settings`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(settingsData)
+      });
+      const result = await response.json();
+      if (!response.ok) throw new Error(result.message || 'Lỗi cập nhật cài đặt');
+      return result;
+    } catch (error) {
+      console.error('API Error [updateSettings]:', error);
+      alert(error.message);
+      throw error;
+    }
+  }
+};
