@@ -13,7 +13,11 @@
   "type": "commonjs",
   "dependencies": {
     "cors": "^2.8.6",
+<<<<<<< HEAD
     "express": "^5.2.1",
     "socket.io": "^4.8.4"
+=======
+    "express": "^5.2.1"
+>>>>>>> 74c6d2de769fd3fe88fde9f091a3ae21efb75034
   }
 }
